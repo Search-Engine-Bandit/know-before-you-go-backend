@@ -20,13 +20,13 @@ app.use(express.json());
 require('dotenv').config();
 
 class Event {
-  constructor(event) {
+  constructor (event) {
     this.name = event.name;
     this.id = event.id;
     this.localDate = event.dates.start.localDate;
     this.localTime = event.dates.start.localTime;
     this.image = event.images[1].url;
-    this.priceRanges = event.priceRanges[0].min;
+    this.priceRanges = event.priceRanges;
     this.city = event._embedded.venues[0].city.name;
     this.state = event._embedded.venues[0].state.stateCode;
   }
@@ -80,19 +80,26 @@ app.get('/covid', (req, res) => {
 app.get('/events', async (req, res) => {
   try {
 
-    // let startYearMonthDay = req.query.startDate
-    // let endYearMonthDay = req.query.endDate
-    // let requestedCity = req.query.city
-    // let state = req.query.state
+    let startYearMonthDay = req.query.startDate
+    let endYearMonthDay = req.query.endDate
+    let requestedCity = req.query.searchQuery
+    let state = req.query.stateCode
+    let activity = req.query.classificationName
 
-    let events = await axios.get('https://app.ticketmaster.com/discovery/v2/events?apikey=MUVmpA0ibwqwo7mnSkoXvSgOiiJu88fB&locale=*&startDate=2021-08-31&endDate=2021-09-01&city=orlando&countryCode=US&stateCode=fl&classificationName=music')
+    console.log(startYearMonthDay, endYearMonthDay, requestedCity, state, activity)
+
+
+
+    let events = await axios.get(`https://app.ticketmaster.com/discovery/v2/events?apikey=MUVmpA0ibwqwo7mnSkoXvSgOiiJu88fB&locale=*&startDate=${startYearMonthDay}&searchQuery=${requestedCity}&countryCode=US&stateCode=${state}&classificationName=${activity}`)
+
+    // console.log(events.data)
 
     let eventsArray = events.data._embedded.events.map(event => {
-        return new Event(event);
-      });
+      return new Event(event);
+    });
 
     res.status(200).send(eventsArray);
-  } catch (error){
+  } catch (error) {
     console.log(error);
   }
 
