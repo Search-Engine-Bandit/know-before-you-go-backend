@@ -23,13 +23,12 @@ class Event {
   constructor(event) {
     this.name = event.name;
     this.id = event.id;
-    // this.localDate = event.dates.start.localDate;
-    // this.localTime = event.dates.start.localTime;
-    // this.image = event.images[1].url;
-    // this.priceRange = event.pricesRanges.min;
-    // this.city = event.city.name;
-    // this.state = event.state.stateCode;
-
+    this.localDate = event.dates.start.localDate;
+    this.localTime = event.dates.start.localTime;
+    this.image = event.images[1].url;
+    this.priceRanges = event.priceRanges[0].min;
+    this.city = event._embedded.venues[0].city.name;
+    this.state = event._embedded.venues[0].state.stateCode;
   }
 }
 // // all of this came from jsonwebtoken docs and will be EXACTLY THE SAME
@@ -97,7 +96,7 @@ app.get('/events', async (req, res) => {
     console.log(error);
   }
 
-  res.status(200).send();
+  // res.status(200).send();
 })
 
 
