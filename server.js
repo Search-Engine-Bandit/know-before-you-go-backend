@@ -80,10 +80,10 @@ app.get('/covid', (req, res) => {
 app.get('/events', async (req, res) => {
   try {
 
-    // let startYearMonthDay = req.query.startDate
-    // let endYearMonthDay = req.query.endDate
-    // let requestedCity = req.query.city
-    // let state = req.query.state
+    let startYearMonthDay = req.query.startDate
+    let endYearMonthDay = req.query.endDate
+    let requestedCity = req.query.city
+    let state = req.query.state
 
     let events = await axios.get('https://app.ticketmaster.com/discovery/v2/events?apikey=MUVmpA0ibwqwo7mnSkoXvSgOiiJu88fB&locale=*&startDate=2021-08-31&endDate=2021-09-01&city=orlando&countryCode=US&stateCode=fl&classificationName=music')
 
