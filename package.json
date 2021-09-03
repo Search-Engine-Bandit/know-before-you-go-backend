@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/301-final-team/know-before-you-go-backend#readme",
   "dependencies": {
+    "@auth0/auth0-react": "^1.6.0",
     "axios": "^0.21.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
