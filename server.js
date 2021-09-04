@@ -58,17 +58,47 @@ mongoose.connect('mongodb://127.0.0.1:27017/books', {
   })
 
 app.post('/dbevents', (req, res) => {
-
-  let { name, city, localDate, localTime, image, state } = req.body
-  let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
-  newEvent.save();
-  console.log(newEvent)
-  res.send(newEvent)
+  try {
+    let { name, city, localDate, localTime, image, state } = req.body
+    let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
+    newEvent.save();
+    console.log(newEvent)
+    res.send(newEvent)
+  } catch (err) {
+    console.log('post failed', err)
+  }
 });
 app.get('/dbevents', async (req, res) => {
-  let eventsSaved = await EventModel.find({});
+  try {
+    let eventsSaved = await EventModel.find({});
 
-  res.status(200).sendStatus(eventsSaved)
+    res.status(200).send(eventsSaved)
+  } catch (err) {
+    console.log('database error', err)
+  }
+})
+app.delete('/dbevents/:id', async (req, res) => {
+  try {
+    let eventID = req.params.id
+    await EventModel.findByIdAndDelete(eventID);
+    res.send('sucessfully deleted')
+  } catch (err) {
+    console.log(err, 'deletion failed')
+  }
+})
+app.put('/dbevents/:id', async (req, res) => {
+  try {
+    let eventID = req.params.id;
+    console.log(req.body)
+    let { prospect, mood } = req.body;
+    let selectedEvent = req.body.selectedEvent
+    let newEvent = { name: selectedEvent.name, prospect: prospect, mood: mood, city: selectedEvent.city, localDate: selectedEvent.localDate, localTime: selectedEvent.localTime, image: selectedEvent.image, state: selectedEvent.state }
+    const updatedEvent = await EventModel.findByIdAndUpdate(eventID, newEvent, { new: true, overwrite: true });
+
+    res.status(200).send(updatedEvent);
+  } catch (err) {
+    res.status(500).send('unable to update the database')
+  }
 })
 
 app.get('/events', async (req, res) => {

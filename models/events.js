@@ -8,7 +8,9 @@ const eventSchema = new mongoose.Schema({
   localDate: { type: String, required: true },
   localTime: { type: String },
   city: { type: String, required: true },
-  state: { type: String, required: true }
+  state: { type: String, required: true },
+  prospect: { type: String },
+  mood: { type: String }
 
 })
 const EventModel = mongoose.model('event', eventSchema)
