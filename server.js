@@ -3,13 +3,13 @@
 const express = require('express');
 const cors = require('cors');
 
-// const jwt = require('jsonwebtoken');
-// const jwksClient = require('jwks-rsa');
+const jwt = require('jsonwebtoken');
+const jwksClient = require('jwks-rsa');
 
 const mongoose = require('mongoose');
-const { default: axios } = require('axios');
+const axios = require('axios');
 const EventModel = require('./models/events');
-const { response } = require('express');
+// const response = require('express');
 
 const PORT = process.env.PORT || 3001;
 const TICKETMASTERKEY = process.env.TICKETMASTER_API
@@ -21,8 +21,24 @@ app.use(express.json());
 
 require('dotenv').config();
 
+// all of this came from jsonwebtoken docs and will be EXACTLY THE SAME
+// ---------------------------
+
+var client = jwksClient({
+  // EXCEPTION!  jwksUri comes from your single page application -> settings -> advanced settings -> endpoint -> the jwks one
+  jwksUri: 'https://dev-vb6a1x5t.us.auth0.com/.well-known/jwks.json'
+});
+
+function getKey(header, callback) {
+  client.getSigningKey(header.kid, function (err, key) {
+    var signingKey = key.publicKey || key.rsaPublicKey;
+    callback(null, signingKey);
+  });
+}
+//---------------------------------
+
 class Event {
-  constructor (event) {
+  constructor(event) {
     this.name = event.name;
     this.id = event.id;
     this.localDate = event.dates.start.localDate;
@@ -33,21 +49,6 @@ class Event {
     this.state = event._embedded.venues[0].state.stateCode;
   }
 }
-// // all of this came from jsonwebtoken docs and will be EXACTLY THE SAME
-// // ---------------------------
-
-// var client = jwksClient({
-//   // EXCEPTION!  jwksUri comes from your single page application -> settings -> advanced settings -> endpoint -> the jwks one
-//   jwksUri: 'https://dev-vb6a1x5t.us.auth0.com/.well-known/jwks.json'
-// });
-
-// function getKey(header, callback) {
-//   client.getSigningKey(header.kid, function (err, key) {
-//     var signingKey = key.publicKey || key.rsaPublicKey;
-//     callback(null, signingKey);
-//   });
-// }
-// //---------------------------------
 
 mongoose.connect('mongodb://127.0.0.1:27017/books', {
   useNewUrlParser: true,
@@ -62,14 +63,27 @@ app.post('/dbevents', (req, res) => {
   let { name, city, localDate, localTime, image, state } = req.body
   let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
   newEvent.save();
-  console.log(newEvent)
   res.send(newEvent)
 });
-app.get('/dbevents', async (req, res) => {
-  let eventsSaved = await EventModel.find({});
 
-  res.status(200).sendStatus(eventsSaved)
-})
+app.get('/dbevents', async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    // the second part is from jet docs
+    jwt.verify(token, getKey, {}, function (err, user) {
+      if (err) {
+        console.log('error')
+        res.status(500).send('invlaid token');
+      } else {
+        let eventsSaved = EventModel.find({});
+        res.status(200).sendStatus(eventsSaved)
+      }
+      })
+    }
+        catch (err) {
+          res.status(500).send('dbase error')
+    }
+  });
 
 app.get('/events', async (req, res) => {
   try {
@@ -84,7 +98,7 @@ app.get('/events', async (req, res) => {
     console.log(startYearMonthDay, endYearMonthDay, requestedCity, state, activity)
     let events = await axios.get(`https://app.ticketmaster.com/discovery/v2/events?apikey=MUVmpA0ibwqwo7mnSkoXvSgOiiJu88fB&locale=*&startDate=${startYearMonthDay}&searchQuery=${requestedCity}&countryCode=US&stateCode=${state}&classificationName=${activity}`)
 
-    // console.log(events.data)
+
     let eventsArray = events.data._embedded.events.map(event => {
       return new Event(event);
     });
