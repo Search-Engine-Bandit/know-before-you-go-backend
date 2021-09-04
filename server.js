@@ -8,6 +8,8 @@ const cors = require('cors');
 
 const mongoose = require('mongoose');
 const { default: axios } = require('axios');
+const EventModel = require('./models/events');
+const { response } = require('express');
 
 const PORT = process.env.PORT || 3001;
 const TICKETMASTERKEY = process.env.TICKETMASTER_API
@@ -47,34 +49,26 @@ class Event {
 // }
 // //---------------------------------
 
-app.get('/', (req, res) => {
-  try {
-
-  } catch {
-
-  }
-
-  res.status(200).send();
-});
-
-app.get('/crimes', (req, res) => {
-  try {
-
-  } catch {
-
-  }
-
-  res.status(200).send();
+mongoose.connect('mongodb://127.0.0.1:27017/books', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 })
+  .then(async () => {
+    console.log('Connected to DB');
+  })
 
-app.get('/covid', (req, res) => {
-  try {
+app.post('/dbevents', (req, res) => {
 
-  } catch {
+  let { name, city, localDate, localTime, image, state } = req.body
+  let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
+  newEvent.save();
+  console.log(newEvent)
+  res.send(newEvent)
+});
+app.get('/dbevents', async (req, res) => {
+  let eventsSaved = await EventModel.find({});
 
-  }
-
-  res.status(200).send();
+  res.status(200).sendStatus(eventsSaved)
 })
 
 app.get('/events', async (req, res) => {
@@ -88,22 +82,16 @@ app.get('/events', async (req, res) => {
     let activity = req.query.classificationName
 
     console.log(startYearMonthDay, endYearMonthDay, requestedCity, state, activity)
-
-
-
     let events = await axios.get(`https://app.ticketmaster.com/discovery/v2/events?apikey=MUVmpA0ibwqwo7mnSkoXvSgOiiJu88fB&locale=*&startDate=${startYearMonthDay}&searchQuery=${requestedCity}&countryCode=US&stateCode=${state}&classificationName=${activity}`)
 
     // console.log(events.data)
-
     let eventsArray = events.data._embedded.events.map(event => {
       return new Event(event);
     });
-
     res.status(200).send(eventsArray);
   } catch (error) {
     console.log(error);
   }
-
   // res.status(200).send();
 })
 
