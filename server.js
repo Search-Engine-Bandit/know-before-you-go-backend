@@ -82,14 +82,10 @@ app.get('/events', async (req, res) => {
 
     let startYearMonthDay = req.query.startDate
     let endYearMonthDay = req.query.endDate
-<<<<<<< HEAD
-    let requestedCity = req.query.city
-    let state = req.query.state
-=======
+
     let requestedCity = req.query.searchQuery
     let state = req.query.stateCode
     let activity = req.query.classificationName
->>>>>>> 1ab1aeaa1f235821f16393c21f7f044fb2436a8a
 
     console.log(startYearMonthDay, endYearMonthDay, requestedCity, state, activity)
 
