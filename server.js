@@ -12,10 +12,16 @@ const axios = require('axios');
 
 let { TextEncoder, TextDecoder } = require("util");
 
+<<<<<<< HEAD
+
+const EventModel = require('./models/events');
+// const { response } = require('express');
+=======
 const EventModel = require('./models/events');
 // const { response } = require('express');
 
 
+>>>>>>> 7c406eda109957412774bc19378e548184a23122
 
 const PORT = process.env.PORT || 3001;
 const TICKETMASTERKEY = process.env.TICKETMASTER_API
@@ -68,7 +74,10 @@ class Covid {
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/event', {
+<<<<<<< HEAD
+=======
 
+>>>>>>> 7c406eda109957412774bc19378e548184a23122
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -77,6 +86,29 @@ mongoose.connect('mongodb://127.0.0.1:27017/event', {
   })
 
 app.post('/dbevents', (req, res) => {
+<<<<<<< HEAD
+  let { name, city, localDate, localTime, image, state } = req.body
+  let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
+  newEvent.save();
+  console.log(newEvent)
+  res.send(newEvent)
+});
+
+app.get('/dbevents', async (req, res) => {
+  let eventsSaved = await EventModel.find({});
+  res.status(200).sendStatus(eventsSaved)
+});
+
+app.get('/covid', async (req, res) => {
+  let state = req.query.state
+  let covidInformation = await axios.get(`https://api.covidtracking.com/v1/states/${state}/current.json`)
+  console.log(state);
+
+  let covidObj = new Covid (covidInformation.data)
+  res.status(200).send(covidObj);
+});
+
+=======
 
   try {
     let { name, city, localDate, localTime, image, state } = req.body
@@ -143,6 +175,7 @@ app.put('/dbevents/:id', async (req, res) => {
     res.status(500).send('unable to update the database')
   }
 })
+>>>>>>> 7c406eda109957412774bc19378e548184a23122
 
 
 app.get('/events', async (req, res) => {
