@@ -1,5 +1,6 @@
 'use strict';
 
+
 const express = require('express');
 const cors = require('cors');
 
@@ -8,8 +9,13 @@ const jwksClient = require('jwks-rsa');
 
 const mongoose = require('mongoose');
 const axios = require('axios');
+
+let { TextEncoder, TextDecoder } = require("util");
+
 const EventModel = require('./models/events');
-// const response = require('express');
+// const { response } = require('express');
+
+
 
 const PORT = process.env.PORT || 3001;
 const TICKETMASTERKEY = process.env.TICKETMASTER_API
@@ -50,7 +56,19 @@ class Event {
   }
 }
 
-mongoose.connect('mongodb://127.0.0.1:27017/books', {
+// DON BANDY BUILDING COVID CLASS
+class Covid {
+  constructor (covid) {
+    this.postiveCases = covid.positive;
+    this.hospitalizedCurrently = covid.hospitalizedCurrently;
+    this.deaths = covid.death;
+    this.state = covid.state;
+  }
+};
+
+
+mongoose.connect('mongodb://127.0.0.1:27017/event', {
+
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -70,6 +88,18 @@ app.post('/dbevents', (req, res) => {
     console.log('post failed', err)
   }
 });
+
+
+app.get('/covid', async (req, res) => {
+  let state = req.query.state
+  let covidInformation = await axios.get(`https://api.covidtracking.com/v1/states/${state}/current.json`)
+  console.log(state);
+  
+  let covidObj = new Covid (covidInformation.data)
+  res.status(200).send(covidObj);
+});
+
+
 app.get('/dbevents', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
@@ -87,7 +117,8 @@ app.get('/dbevents', async (req, res) => {
         catch (err) {
           res.status(500).send('dbase error')
     }
-})
+});
+
 app.delete('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id
@@ -97,6 +128,7 @@ app.delete('/dbevents/:id', async (req, res) => {
     console.log(err, 'deletion failed')
   }
 })
+
 app.put('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id;
@@ -111,6 +143,7 @@ app.put('/dbevents/:id', async (req, res) => {
     res.status(500).send('unable to update the database')
   }
 })
+
 
 app.get('/events', async (req, res) => {
   try {
@@ -133,9 +166,7 @@ app.get('/events', async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-  // res.status(200).send();
 })
-
 
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
