@@ -45,6 +45,7 @@ class Covid {
     this.postiveCases = covid.positive;
     this.hospitalizedCurrently = covid.hospitalizedCurrently;
     this.deaths = covid.death;
+    this.state = covid.state;
   }
 };
 
@@ -68,7 +69,17 @@ app.post('/dbevents', (req, res) => {
 app.get('/dbevents', async (req, res) => {
   let eventsSaved = await EventModel.find({});
   res.status(200).sendStatus(eventsSaved)
-})
+});
+
+app.get('/covid', async (req, res) => {
+  let state = req.query.state
+  let covidInformation = await axios.get(`https://api.covidtracking.com/v1/states/${state}/current.json`)
+  console.log(state);
+
+  let covidObj = new Covid (covidInformation.data)
+  res.status(200).send(covidObj);
+});
+
 
 app.get('/events', async (req, res) => {
   try {
@@ -84,23 +95,6 @@ app.get('/events', async (req, res) => {
     let events = await axios.get(`https://app.ticketmaster.com/discovery/v2/events?apikey=MUVmpA0ibwqwo7mnSkoXvSgOiiJu88fB&locale=*&startDate=${startYearMonthDay}&searchQuery=${requestedCity}&countryCode=US&stateCode=${state}&classificationName=${activity}`)
 
 
-
-    ///////////        COVID INFO       /////////////////
-    let covidInformation = await axios.get(`https://api.covidtracking.com/v1/states/ca/current.json`)
-
-    console.log('Covid Information:', covidInformation.data)
-
-    // let covidArray = covidInformation.data.map(data => {
-    //   return new Covid(data);
-    // });
-    // res.status(200).send(covidArray);
-
-    let covidObj = new Covid (covidInformation.data)
-    res.status(200).send(covidObj);
-  
-    ///////////        COVID INFO       /////////////////
-
-
     let eventsArray = events.data._embedded.events.map(event => {
       return new Event(event);
     });
@@ -108,7 +102,6 @@ app.get('/events', async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-  // res.status(200).send();
 })
 
 
