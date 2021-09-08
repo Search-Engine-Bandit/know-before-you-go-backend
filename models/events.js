@@ -10,7 +10,9 @@ const eventSchema = new mongoose.Schema({
   city: { type: String, required: true },
   state: { type: String, required: true },
   prospect: { type: String },
-  mood: { type: String }
+  mood: { type: String },
+  going: { type: String },
+  ticket: { type: String }
 
 })
 const EventModel = mongoose.model('event', eventSchema)
