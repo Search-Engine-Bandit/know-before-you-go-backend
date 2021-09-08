@@ -12,7 +12,6 @@ const axios = require('axios');
 
 let { TextEncoder, TextDecoder } = require("util");
 
-
 const EventModel = require('./models/events');
 // const { response } = require('express');
 
@@ -60,7 +59,7 @@ class Event {
 }
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/event', {
+
 
 // DON BANDY BUILDING COVID CLASS
 class Covid {
@@ -70,7 +69,7 @@ class Covid {
     this.deaths = covid.death;
     this.state = covid.state;
   }
-};
+}
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/event', {
@@ -91,10 +90,6 @@ app.post('/dbevents', (req, res) => {
   res.send(newEvent)
 });
 
-app.get('/dbevents', async (req, res) => {
-  let eventsSaved = await EventModel.find({});
-  res.status(200).sendStatus(eventsSaved)
-});
 
 
 app.get('/covid', async (req, res) => {
