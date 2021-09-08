@@ -60,7 +60,6 @@ class Event {
 }
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/event', {
 
 // DON BANDY BUILDING COVID CLASS
 class Covid {
@@ -91,18 +90,18 @@ app.post('/dbevents', (req, res) => {
   res.send(newEvent)
 });
 
-app.get('/dbevents', async (req, res) => {
-  let eventsSaved = await EventModel.find({});
-  res.status(200).sendStatus(eventsSaved)
-});
+// app.get('/dbevents', async (req, res) => {
+//   let eventsSaved = await EventModel.find({});
+//   res.status(200).sendStatus(eventsSaved)
+// });
 
 
 app.get('/covid', async (req, res) => {
   let state = req.query.state
   let covidInformation = await axios.get(`https://api.covidtracking.com/v1/states/${state}/current.json`)
   console.log(state);
-  
-  let covidObj = new Covid (covidInformation.data)
+
+  let covidObj = new Covid(covidInformation.data)
   res.status(200).send(covidObj);
 });
 
@@ -142,10 +141,10 @@ app.put('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id;
     console.log(req.body)
-    let { prospect, mood, going } = req.body;
-    let selectedEvent = req.body.selectedEvent
-    let newEvent = { name: selectedEvent.name, prospect: prospect, mood: mood, city: selectedEvent.city, localDate: selectedEvent.localDate, localTime: selectedEvent.localTime, image: selectedEvent.image, state: selectedEvent.state, ticket: selectedEvent.ticket, going: going }
-    const updatedEvent = await EventModel.findByIdAndUpdate(eventID, newEvent, { new: true, overwrite: true });
+    // let { prospect, mood, going } = req.body;
+    // let selectedEvent = req.body.selectedEvent
+    // let newEvent = { name: selectedEvent.name, prospect: prospect, mood: mood, city: selectedEvent.city, localDate: selectedEvent.localDate, localTime: selectedEvent.localTime, image: selectedEvent.image, state: selectedEvent.state, ticket: selectedEvent.ticket, going: going }
+    const updatedEvent = await EventModel.findByIdAndUpdate(eventID, req.body, { new: true, overwrite: true });
 
     res.status(200).send(updatedEvent);
   } catch (err) {
