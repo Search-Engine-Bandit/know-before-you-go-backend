@@ -90,10 +90,6 @@ app.post('/dbevents', (req, res) => {
   res.send(newEvent)
 });
 
-app.get('/dbevents', async (req, res) => {
-  let eventsSaved = await EventModel.find({});
-  res.status(200).sendStatus(eventsSaved)
-});
 
 
 app.get('/covid', async (req, res) => {
