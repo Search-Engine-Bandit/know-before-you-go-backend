@@ -82,7 +82,7 @@ app.get('/dbevents', async (req, res) => {
     //     res.status(500).send('invlaid token');
     // } else {
     let eventsSaved = await EventModel.find({});
-    console.log('new')
+
     res.status(200).send(eventsSaved)
     //     }
     //   })
