@@ -27,6 +27,7 @@ app.use(express.json());
 
 require('dotenv').config();
 
+
 // all of this came from jsonwebtoken docs and will be EXACTLY THE SAME
 // ---------------------------
 
@@ -44,7 +45,7 @@ function getKey(header, callback) {
 //---------------------------------
 
 class Event {
-  constructor(event) {
+  constructor (event) {
     this.name = event.name;
     this.id = event.id;
     this.localDate = event.dates.start.localDate;
@@ -53,8 +54,12 @@ class Event {
     this.priceRanges = event.priceRanges;
     this.city = event._embedded.venues[0].city.name;
     this.state = event._embedded.venues[0].state.stateCode;
+    this.ticket = event.url
   }
 }
+
+
+
 
 // DON BANDY BUILDING COVID CLASS
 class Covid {
@@ -64,7 +69,7 @@ class Covid {
     this.deaths = covid.death;
     this.state = covid.state;
   }
-};
+}
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/event', {
@@ -78,15 +83,16 @@ mongoose.connect('mongodb://127.0.0.1:27017/event', {
 
 app.post('/dbevents', (req, res) => {
 
-  try {
-    let { name, city, localDate, localTime, image, state } = req.body
-    let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
-    newEvent.save();
-    console.log(newEvent)
-    res.send(newEvent)
-  } catch (err) {
-    console.log('post failed', err)
-  }
+  let { name, city, localDate, localTime, image, state } = req.body
+  let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
+  newEvent.save();
+  console.log(newEvent)
+  res.send(newEvent)
+});
+
+app.get('/dbevents', async (req, res) => {
+  let eventsSaved = await EventModel.find({});
+  res.status(200).sendStatus(eventsSaved)
 });
 
 
@@ -102,22 +108,24 @@ app.get('/covid', async (req, res) => {
 
 app.get('/dbevents', async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    // the second part is from jet docs
-    jwt.verify(token, getKey, {}, function (err, user) {
-      if (err) {
-        console.log('error')
-        res.status(500).send('invlaid token');
-      } else {
-        let eventsSaved = EventModel.find({});
-        res.status(200).sendStatus(eventsSaved)
-      }
-      })
-    }
-        catch (err) {
-          res.status(500).send('dbase error')
-    }
-});
+
+    // const token = req.headers.authorization.split(' ')[1];
+    //the second part is from jet docs
+    // jwt.verify(token, getKey, {}, function (err, user) {
+    //   if (err) {
+    //     console.log('error')
+    //     res.status(500).send('invlaid token');
+    // } else {
+    let eventsSaved = await EventModel.find({});
+
+    res.status(200).send(eventsSaved)
+    //     }
+    //   })
+  }
+  catch (err) {
+    res.status(500).send(`dbase error, ${err}`)
+  }
+})
 
 app.delete('/dbevents/:id', async (req, res) => {
   try {
@@ -133,9 +141,9 @@ app.put('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id;
     console.log(req.body)
-    let { prospect, mood } = req.body;
+    let { prospect, mood, going } = req.body;
     let selectedEvent = req.body.selectedEvent
-    let newEvent = { name: selectedEvent.name, prospect: prospect, mood: mood, city: selectedEvent.city, localDate: selectedEvent.localDate, localTime: selectedEvent.localTime, image: selectedEvent.image, state: selectedEvent.state }
+    let newEvent = { name: selectedEvent.name, prospect: prospect, mood: mood, city: selectedEvent.city, localDate: selectedEvent.localDate, localTime: selectedEvent.localTime, image: selectedEvent.image, state: selectedEvent.state, ticket: selectedEvent.ticket, going: going }
     const updatedEvent = await EventModel.findByIdAndUpdate(eventID, newEvent, { new: true, overwrite: true });
 
     res.status(200).send(updatedEvent);
@@ -143,7 +151,6 @@ app.put('/dbevents/:id', async (req, res) => {
     res.status(500).send('unable to update the database')
   }
 })
-
 
 app.get('/events', async (req, res) => {
   try {
