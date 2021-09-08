@@ -1,5 +1,6 @@
 'use strict';
 
+
 const express = require('express');
 const cors = require('cors');
 
@@ -8,8 +9,14 @@ const jwksClient = require('jwks-rsa');
 
 const mongoose = require('mongoose');
 const axios = require('axios');
+
+let { TextEncoder, TextDecoder } = require("util");
+
+
 const EventModel = require('./models/events');
-// const response = require('express');
+// const { response } = require('express');
+
+
 
 const PORT = process.env.PORT || 3001;
 const TICKETMASTERKEY = process.env.TICKETMASTER_API
@@ -52,7 +59,22 @@ class Event {
   }
 }
 
+
 mongoose.connect('mongodb://127.0.0.1:27017/event', {
+
+// DON BANDY BUILDING COVID CLASS
+class Covid {
+  constructor (covid) {
+    this.postiveCases = covid.positive;
+    this.hospitalizedCurrently = covid.hospitalizedCurrently;
+    this.deaths = covid.death;
+    this.state = covid.state;
+  }
+};
+
+
+mongoose.connect('mongodb://127.0.0.1:27017/event', {
+
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -62,18 +84,32 @@ mongoose.connect('mongodb://127.0.0.1:27017/event', {
 
 app.post('/dbevents', (req, res) => {
 
-  try {
-    let { name, city, localDate, localTime, image, state, ticket } = req.body
-    let newEvent = new EventModel({ name, city, localDate, localTime, image, state, ticket });
-    newEvent.save();
-    console.log(newEvent)
-    res.send(newEvent)
-  } catch (err) {
-    console.log('post failed', err)
-  }
+  let { name, city, localDate, localTime, image, state } = req.body
+  let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
+  newEvent.save();
+  console.log(newEvent)
+  res.send(newEvent)
 });
+
+app.get('/dbevents', async (req, res) => {
+  let eventsSaved = await EventModel.find({});
+  res.status(200).sendStatus(eventsSaved)
+});
+
+
+app.get('/covid', async (req, res) => {
+  let state = req.query.state
+  let covidInformation = await axios.get(`https://api.covidtracking.com/v1/states/${state}/current.json`)
+  console.log(state);
+  
+  let covidObj = new Covid (covidInformation.data)
+  res.status(200).send(covidObj);
+});
+
+
 app.get('/dbevents', async (req, res) => {
   try {
+
     // const token = req.headers.authorization.split(' ')[1];
     //the second part is from jet docs
     // jwt.verify(token, getKey, {}, function (err, user) {
@@ -91,6 +127,7 @@ app.get('/dbevents', async (req, res) => {
     res.status(500).send(`dbase error, ${err}`)
   }
 })
+
 app.delete('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id
@@ -100,6 +137,7 @@ app.delete('/dbevents/:id', async (req, res) => {
     console.log(err, 'deletion failed')
   }
 })
+
 app.put('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id;
@@ -136,9 +174,7 @@ app.get('/events', async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-  // res.status(200).send();
 })
-
 
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
