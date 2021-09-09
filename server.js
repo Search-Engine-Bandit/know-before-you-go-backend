@@ -31,7 +31,7 @@ require('dotenv').config();
 
 var client = jwksClient({
   // EXCEPTION!  jwksUri comes from your single page application -> settings -> advanced settings -> endpoint -> the jwks one
-  jwksUri: 'https://dev-1evsebhc.us.auth0.com/.well-known/jwks.json'
+  jwksUri: 'https://dev-vb6a1x5t.us.auth0.com/.well-known/jwks.json'
 });
 
 function getKey(header, callback) {
@@ -67,7 +67,7 @@ class Covid {
 }
 
 
-mongoose.connect('mongodb+srv://taylorwhite21:SCRAM@cluster0.jzhqj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+mongoose.connect('mongodb://127.0.0.1:27017/event', {
 
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -165,9 +165,6 @@ app.get('/events', async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-})
-app.get('/', (req, res) => {
-  res.send('server is live')
 })
 
 
