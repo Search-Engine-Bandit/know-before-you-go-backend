@@ -67,7 +67,7 @@ class Covid {
 }
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/event', {
+mongoose.connect('mongodb+srv://taylorwhite21:SCRAM@cluster0.jzhqj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
 
   useNewUrlParser: true,
   useUnifiedTopology: true
