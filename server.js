@@ -56,6 +56,7 @@ class Event {
   }
 }
 
+
 class Covid {
   constructor (covid) {
     this.postiveCases = covid.positive;
@@ -129,6 +130,12 @@ app.delete('/dbevents/:id', async (req, res) => {
 app.put('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id;
+
+    console.log(req.body)
+    // let { prospect, mood, going } = req.body;
+    // let selectedEvent = req.body.selectedEvent
+    // let newEvent = { name: selectedEvent.name, prospect: prospect, mood: mood, city: selectedEvent.city, localDate: selectedEvent.localDate, localTime: selectedEvent.localTime, image: selectedEvent.image, state: selectedEvent.state, ticket: selectedEvent.ticket, going: going }
+
     const updatedEvent = await EventModel.findByIdAndUpdate(eventID, req.body, { new: true, overwrite: true });
 
     res.status(200).send(updatedEvent);
