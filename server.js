@@ -56,6 +56,8 @@ class Event {
   }
 }
 
+
+// DON BANDY BUILDING COVID CLASS
 class Covid {
   constructor (covid) {
     this.postiveCases = covid.positive;
