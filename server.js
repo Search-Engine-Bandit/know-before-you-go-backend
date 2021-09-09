@@ -31,7 +31,7 @@ require('dotenv').config();
 
 var client = jwksClient({
   // EXCEPTION!  jwksUri comes from your single page application -> settings -> advanced settings -> endpoint -> the jwks one
-  jwksUri: 'https://dev-vb6a1x5t.us.auth0.com/.well-known/jwks.json'
+  jwksUri: 'https://dev-1evsebhc.us.auth0.com/.well-known/jwks.json'
 });
 
 function getKey(header, callback) {
