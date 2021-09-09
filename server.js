@@ -12,14 +12,11 @@ const axios = require('axios');
 
 let { TextEncoder, TextDecoder } = require("util");
 
-
 const EventModel = require('./models/events');
-// const { response } = require('express');
-
 
 
 const PORT = process.env.PORT || 3001;
-const TICKETMASTERKEY = process.env.TICKETMASTER_API
+//const TICKETMASTER_API = process.env.TICKETMASTER_API
 
 const app = express();
 
@@ -59,9 +56,6 @@ class Event {
   }
 }
 
-
-
-// DON BANDY BUILDING COVID CLASS
 class Covid {
   constructor (covid) {
     this.postiveCases = covid.positive;
@@ -69,7 +63,7 @@ class Covid {
     this.deaths = covid.death;
     this.state = covid.state;
   }
-};
+}
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/event', {
@@ -83,17 +77,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/event', {
 
 app.post('/dbevents', (req, res) => {
 
-  let { name, city, localDate, localTime, image, state } = req.body
-  let newEvent = new EventModel({ name, city, localDate, localTime, image, state });
-  newEvent.save();
-  console.log(newEvent)
+  let { name, city, localDate, localTime, image, state, ticket } = req.body
+  let newEvent = new EventModel({ name, city, localDate, localTime, image, state, ticket });
+  newEvent.save()
   res.send(newEvent)
 });
 
-// app.get('/dbevents', async (req, res) => {
-//   let eventsSaved = await EventModel.find({});
-//   res.status(200).sendStatus(eventsSaved)
-// });
 
 
 app.get('/covid', async (req, res) => {
@@ -140,10 +129,6 @@ app.delete('/dbevents/:id', async (req, res) => {
 app.put('/dbevents/:id', async (req, res) => {
   try {
     let eventID = req.params.id;
-    console.log(req.body)
-    // let { prospect, mood, going } = req.body;
-    // let selectedEvent = req.body.selectedEvent
-    // let newEvent = { name: selectedEvent.name, prospect: prospect, mood: mood, city: selectedEvent.city, localDate: selectedEvent.localDate, localTime: selectedEvent.localTime, image: selectedEvent.image, state: selectedEvent.state, ticket: selectedEvent.ticket, going: going }
     const updatedEvent = await EventModel.findByIdAndUpdate(eventID, req.body, { new: true, overwrite: true });
 
     res.status(200).send(updatedEvent);
@@ -163,7 +148,7 @@ app.get('/events', async (req, res) => {
     let activity = req.query.classificationName
 
     console.log(startYearMonthDay, endYearMonthDay, requestedCity, state, activity)
-    let events = await axios.get(`https://app.ticketmaster.com/discovery/v2/events?apikey=MUVmpA0ibwqwo7mnSkoXvSgOiiJu88fB&locale=*&startDate=${startYearMonthDay}&searchQuery=${requestedCity}&countryCode=US&stateCode=${state}&classificationName=${activity}`)
+    let events = await axios.get(`https://app.ticketmaster.com/discovery/v2/events?apikey=${process.env.TICKETMASTER_API}&locale=*&startDate=${startYearMonthDay}&searchQuery=${requestedCity}&countryCode=US&stateCode=${state}&classificationName=${activity}`)
 
 
     let eventsArray = events.data._embedded.events.map(event => {
