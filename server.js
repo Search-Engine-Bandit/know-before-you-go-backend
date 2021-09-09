@@ -166,6 +166,9 @@ app.get('/events', async (req, res) => {
     console.log(error);
   }
 })
+app.get('/', (req, res) => {
+  res.send('server is live')
+})
 
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
