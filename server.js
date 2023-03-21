@@ -67,7 +67,7 @@ class Covid {
 }
 
 
-mongoose.connect('mongodb+srv://taylorwhite21:SCRAM@cluster0.jzhqj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+mongoose.connect('mongodb://localhost:27017/book-db', {
 
   useNewUrlParser: true,
   useUnifiedTopology: true
